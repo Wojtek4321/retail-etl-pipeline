@@ -141,7 +141,7 @@ def run_pipeline():
 
         # insert valid records into PostgreSQL and optionally save to clean directory
         if valid_records:
-            insert_clean_data(valid_records) # <--- DODAJ TO
+            insert_clean_data(valid_records) 
             
             # optionally save clean records to a separate directory for auditing
             clean_path = os.path.join(CLEAN_DIR, f"clean_{file_name}")
