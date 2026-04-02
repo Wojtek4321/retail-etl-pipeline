@@ -1,0 +1,39 @@
+{
+    "dataset_name": "orders",
+    "rules": {
+        "order_id": {
+            "required": true
+        },
+        "amount": {
+            "required": true,
+            "min_value": 0.01
+        },
+        "customer_email": {
+            "required": true,
+            "allow_empty": false
+        },
+        "order_date": {
+            "required": true,
+            "date_format": "%Y-%m-%d %H:%M:%S"
+        },
+        "country": {
+            "required": true,
+            "allowed_values": ["Poland", "Germany", "United States", "England", "France"]
+        },
+        "category": {
+            "required": true,
+            "allowed_values": ["Electronics", "Garden", "Fashion", "Sport", "Books"]
+        },
+        "payment_method": {
+            "required": true,
+            "allowed_values": [
+                "Credit Card", 
+                "PayPal", 
+                "Transfer", 
+                "Blik", 
+                "Cash on Delivery"
+            ]
+        }
+        
+    }
+}
