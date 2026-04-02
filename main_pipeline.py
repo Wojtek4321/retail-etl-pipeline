@@ -104,7 +104,7 @@ def insert_clean_data(records):
         cursor.close()
         conn.close()
     except Exception as e:
-        print(f"❌ Error while writing clean data to Postgres: {e}")
+        print(f"Error while writing clean data to Postgres: {e}")
 
 def run_pipeline():
     # load validation rules from JSON configuration
