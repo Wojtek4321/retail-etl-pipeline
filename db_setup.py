@@ -1,49 +1,53 @@
 import os
 import logging
+#database setup connect
 from psycopg2 import connect, sql
-from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from dotenv import load_dotenv
 
-# Configuration for logging
+# basic logging setup
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
+
 load_dotenv()
 
-#from .env
+# Load database URLs from file env 
 ADMIN_DB_URL = os.getenv("ADMIN_DB_URL")
 DB_URL = os.getenv("DB_URL")
 
-
-
+# create database and tables if not exist
 def create_database():
     if not ADMIN_DB_URL:
-        logger.error(" ADMIN_DB_URL non existent")
+        logger.critical("Missing ADMIN_DB_URL ")
         return
 
-    # to get database name from DB_URL
+    # get database name from DB_URL
     db_name = DB_URL.split('/')[-1].split('?')[0]
     
+    # error handling for database connection and creation
     try:
         
-        with connect(ADMIN_DB_URL) as conn:
-            conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
-            with conn.cursor() as cursor:
-                # check if database exists
-                cursor.execute("SELECT 1 FROM pg_catalog.pg_database WHERE datname = %s", (db_name,))
-                exists = cursor.fetchone()
+        conn = connect(ADMIN_DB_URL)
+        conn.autocommit = True   # trannscation off for database creation
+        cursor = conn.cursor() 
+        
+        # check catalog if database exists, if not create it POSTGRESQL
+        cursor.execute("SELECT 1 FROM pg_catalog.pg_database WHERE datname = %s", (db_name,))
+        exists = cursor.fetchone()
 
-                if not exists:
-                    # create database with sql.SQL to avoid SQL injection
-                    cursor.execute(sql.SQL("CREATE DATABASE {}").format(sql.Identifier(db_name)))
-                    logger.info(f"Data base '{db_name}' was created")
-                else:
-                    logger.info(f"Data base '{db_name}' already exists")
+        if not exists:
+            # create database with proper escaping to avoid SQL injection
+            cursor.execute(sql.SQL("CREATE DATABASE {}").format(sql.Identifier(db_name)))
+            logger.info(f"Database '{db_name}' created successfully")
+        else:
+            logger.info(f"Database '{db_name}' already exists")
+            
+        cursor.close()
+        conn.close()
     except Exception as e:
-        logger.error(f"Critical error during database initialization: {e}")
+        logger.error(f"Failed to initialize database: {e}")
 
 def create_tables():
-    # definitinion of tables and their structure
     schemas = {
         "error_logs": """
             CREATE TABLE IF NOT EXISTS error_logs (
@@ -70,15 +74,16 @@ def create_tables():
         """
     }
 
+    # error handling for table creation and connection
     try:
         with connect(DB_URL) as conn:
             with conn.cursor() as cursor:
                 for table_name, ddl in schemas.items():
                     cursor.execute(ddl)
-                    logger.info(f"Table structure for '{table_name}' verified.")
+                    logger.info(f"Verified schema for: {table_name}")
             conn.commit()
     except Exception as e:
-        logger.error(f"Error occurred while creating schemas: {e}")
+        logger.error(f"Error while creating tables: {e}")
 
 if __name__ == "__main__":
     create_database()

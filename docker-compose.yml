@@ -1,0 +1,32 @@
+services:
+  db:
+    image: postgres:15
+    environment:
+    #from .env file or default values if not set
+      POSTGRES_USER: ${DB_USER:-admin} 
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-adminpassword}
+      POSTGRES_DB: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    # healthcheck to ensure the database is ready before the ETL app starts
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-admin}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  etl_app:
+    build: .
+    environment:
+      - DB_URL=postgresql://${DB_USER:-admin}:${DB_PASSWORD:-adminpassword}@db:5432/etl_database
+      - ADMIN_DB_URL=postgresql://${DB_USER:-admin}:${DB_PASSWORD:-adminpassword}@db:5432/postgres
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./data:/app/data
+
+volumes:
+  pgdata:

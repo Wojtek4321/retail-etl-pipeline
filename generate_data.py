@@ -2,8 +2,12 @@ import json
 import random
 import os
 from datetime import datetime, timedelta
+import logging
 
-#data to generate
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+#folder data to generate
 os.makedirs('data/input', exist_ok=True)
 
 categories = ['Electronics', 'Garden', 'Fashion', 'Sport', 'Books']
@@ -68,4 +72,4 @@ file_path = 'data/input/orders_batch.json'
 with open(file_path, 'w', encoding='utf-8') as f:
     json.dump(orders_list, f, indent=4, ensure_ascii=False)
 
-print(f"Generated file: {file_path}")
+logger.info(f"Generated file: {file_path}")
