@@ -19,8 +19,12 @@ ETL implementation for processing retail transaction data. The project uses Pyth
 Build and start the services:
 ```bash
 docker-compose up -d --build
+```
 Initialize the database
+```bash
 docker-compose run --rm etl_app python db_setup.py
+```
 Process data:
+```bash
 Generate test files: docker-compose run --rm etl_app python generate_data.py
 Run the pipeline: docker-compose run --rm etl_app python main_pipeline.py
