@@ -15,6 +15,7 @@ ETL implementation for processing retail transaction data. The project uses Pyth
 - Docker 
 - Environment variables defined in a `.env` file (see `.env.example` for reference)
 
+
 ## How to run
 Build and start the services:
 ```bash
